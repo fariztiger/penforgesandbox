@@ -1,0 +1,1680 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080b14"><meta name="description" content="KodPensel Studio — mobile-friendly browser-based coding editor"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.svg" type="image/svg+xml">
+<title>KodPensel Studio 2.0 — Code Anywhere</title>
+
+<style>
+:root {
+  color-scheme: dark;
+  --bg:#080b14;
+  --panel:#101522;
+  --panel2:#151c2b;
+  --border:#263044;
+  --text:#edf2ff;
+  --muted:#8c9bb5;
+  --accent:#9b8cff;
+  --cyan:#55d8e7;
+  --green:#54dba2;
+  --red:#ff708b;
+  --shadow:0 20px 60px rgba(0,0,0,.25);
+}
+
+* {box-sizing:border-box}
+
+html,body {
+  height:100%;
+  margin:0;
+}
+
+body {
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+  overflow:hidden;
+}
+
+button,input,textarea {
+  font:inherit;
+}
+
+button {
+  cursor:pointer;
+  color:var(--text);
+  background:#1a2334;
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:9px 13px;
+  font-size:12px;
+  font-weight:650;
+  transition:.18s;
+  white-space:nowrap;
+}
+
+button:hover {
+  background:#28344a;
+  border-color:#53617b;
+}
+
+button:focus-visible,input:focus-visible,
+textarea:focus-visible {
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
+button.primary {
+  background:linear-gradient(135deg,#7665ed,#a36bf2);
+  color:white;
+  border-color:transparent;
+  box-shadow:0 3px 18px #8068fa30;
+}
+
+button.primary:hover {
+  filter:brightness(1.12);
+}
+
+button.active {
+  background:#302c50;
+  border-color:#7869ca;
+  color:#d6ceff;
+}
+
+button.iconbtn {
+  padding:9px 11px;
+}
+
+.app {
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+  height:100dvh;
+  min-height:0;
+}
+
+.topbar {
+  flex:none;
+  height:65px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:0 20px;
+  border-bottom:1px solid var(--border);
+  background:#0e1320;
+}
+
+.logo {
+  display:flex;
+  align-items:center;
+  gap:11px;
+  min-width:0;
+}
+
+.logo-icon {
+  width:37px;
+  height:37px;
+  border-radius:11px;
+  background:linear-gradient(135deg,#9c82ff,#4adad5);
+  display:grid;
+  place-items:center;
+  font-size:19px;
+  color:#0b1020;
+  font-weight:900;
+  box-shadow:0 0 25px #8d71fe35;
+}
+
+.logo-title {
+  font-weight:850;
+  font-size:16px;
+  letter-spacing:.5px;
+}
+
+.logo-title span {
+  color:var(--accent);
+}
+
+.logo-sub {
+  color:var(--muted);
+  font-size:10px;
+  margin-top:3px;
+}
+
+.actions {
+  display:flex;
+  align-items:center;
+  gap:7px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+
+.actions::-webkit-scrollbar {
+  display:none;
+}
+
+.filename {
+  width:160px;
+  background:#151c2b;
+  border:1px solid var(--border);
+  border-radius:9px;
+  color:var(--text);
+  padding:10px 12px;
+  font-size:12px;
+  min-width:90px;
+}
+
+.subbar {
+  flex:none;
+  min-height:46px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:8px 17px;
+  background:#0b101b;
+}
+
+.sub-left,.sub-right {
+  display:flex;
+  align-items:center;
+  gap:11px;
+  color:var(--muted);
+  font-size:11px;
+}
+
+.pill {
+  border:1px solid #244a40;
+  color:var(--green);
+  background:#10271f;
+  border-radius:30px;
+  padding:5px 9px;
+  font-size:10px;
+  font-weight:700;
+}
+
+.pill::before {
+  content:"";
+  display:inline-block;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--green);
+  margin-right:6px;
+}
+
+.toggle {
+  display:flex;
+  align-items:center;
+  gap:7px;
+  cursor:pointer;
+}
+
+.toggle input {
+  accent-color:var(--accent);
+}
+
+.workspace {
+  flex:1;
+  min-height:0;
+  display:grid;
+  grid-template-columns:
+    minmax(260px,50%) 6px minmax(260px,1fr);
+}
+
+.editor-pane,.preview-pane {
+  min-width:0;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+.editor-pane {
+  background:#0e1420;
+}
+
+.preview-pane {
+  background:#0a1019;
+}
+
+.pane-header {
+  height:49px;
+  flex:none;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 13px;
+  border-bottom:1px solid var(--border);
+  background:#121a29;
+  gap:10px;
+}
+
+.tabs {
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+
+.tab {
+  padding:9px 16px;
+  background:transparent;
+  border-color:transparent;
+  color:var(--muted);
+}
+
+.tab.selected {
+  background:#282843;
+  border-color:#414064;
+  color:white;
+}
+
+.tab[data-tab="html"].selected {
+  box-shadow:inset 0 2px #ff9470;
+}
+
+.tab[data-tab="css"].selected {
+  box-shadow:inset 0 2px #75b8ff;
+}
+
+.tab[data-tab="js"].selected {
+  box-shadow:inset 0 2px #f3cc66;
+}
+
+.editor-shell {
+  flex:1;
+  min-height:0;
+  display:flex;
+  position:relative;
+  overflow:hidden;
+  background:#0d1320;
+}
+
+.line-numbers {
+  flex:none;
+  width:52px;
+  padding:17px 11px 30px 3px;
+  color:#58657e;
+  text-align:right;
+  font:13px/23px Consolas,
+       "Courier New",monospace;
+  white-space:pre;
+  overflow:hidden;
+  user-select:none;
+  border-right:1px solid #20293a;
+}
+
+#code {
+  flex:1;
+  min-height:0;
+  width:100%;
+  border:0;
+  outline:none;
+  resize:none;
+  padding:17px 18px 30px;
+  background:transparent;
+  color:#dce8fa;
+  font:13px/23px Consolas,
+       "Courier New",monospace;
+  tab-size:2;
+  white-space:pre;
+  overflow:auto;
+  spellcheck:false;
+}
+
+#code::selection {
+  background:#6555bd70;
+}
+
+.editor-footer {
+  height:31px;
+  flex:none;
+  border-top:1px solid var(--border);
+  padding:7px 15px;
+  color:var(--muted);
+  font-size:11px;
+  display:flex;
+  justify-content:space-between;
+  background:#101725;
+}
+
+.dragbar {
+  background:#263044;
+  cursor:col-resize;
+  position:relative;
+  touch-action:none;
+}
+
+.dragbar:hover,
+.dragbar.dragging {
+  background:var(--accent);
+}
+
+.dragbar::after {
+  content:"⋮";
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  color:#9eabca;
+  font-size:17px;
+}
+
+.preview-controls {
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+
+.preview-controls button {
+  padding:7px 10px;
+  font-size:11px;
+}
+
+.preview-stage {
+  flex:1;
+  min-height:0;
+  padding:15px;
+  display:flex;
+  justify-content:center;
+  align-items:stretch;
+  overflow:auto;
+  background:
+    radial-gradient(circle at 15% 15%,
+      #182239 0,transparent 36%),
+    #090e18;
+}
+
+.frame-shell {
+  height:100%;
+  width:100%;
+  max-width:100%;
+  min-height:250px;
+  background:#fff;
+  border:1px solid #3c4961;
+  border-radius:11px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  transition:width .2s ease;
+}
+
+.frame-shell.desktop {
+  width:100%;
+}
+
+.frame-shell.tablet {
+  width:768px;
+}
+
+.frame-shell.mobile {
+  width:390px;
+}
+
+#preview {
+  width:100%;
+  height:100%;
+  border:0;
+  background:white;
+  display:block;
+}
+
+.console {
+  height:185px;
+  min-height:120px;
+  flex:none;
+  display:none;
+  flex-direction:column;
+  background:#080e18;
+  border-top:1px solid var(--border);
+}
+
+.console.open {
+  display:flex;
+}
+
+.console-head {
+  height:37px;
+  flex:none;
+  padding:0 12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid var(--border);
+  font-size:12px;
+  font-weight:700;
+}
+
+.console-body {
+  overflow:auto;
+  flex:1;
+  padding:8px 12px;
+  font:12px/20px Consolas,
+       "Courier New",monospace;
+}
+
+.log-entry {
+  padding:5px 2px;
+  border-bottom:1px solid #202638;
+  overflow-wrap:anywhere;
+  white-space:pre-wrap;
+}
+
+.log-entry.warn {
+  color:#ffcc70;
+}
+
+.log-entry.error {
+  color:#ff829b;
+}
+
+.log-entry.info {
+  color:#83caff;
+}
+
+.log-entry .time {
+  color:#6e8098;
+  margin-right:9px;
+}
+
+.statusbar {
+  height:31px;
+  flex:none;
+  background:#151b2a;
+  border-top:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:0 15px;
+  font-size:10px;
+  color:var(--muted);
+}
+
+.statusbar strong {
+  color:var(--green);
+}
+
+.toast {
+  position:fixed;
+  z-index:1000;
+  bottom:48px;
+  right:22px;
+  background:#25364c;
+  border:1px solid #52667e;
+  padding:13px 17px;
+  border-radius:10px;
+  box-shadow:var(--shadow);
+  font-size:12px;
+  pointer-events:none;
+  animation:fadeIn .2s ease;
+}
+
+@keyframes fadeIn {
+  from {opacity:0;transform:translateY(8px)}
+  to {opacity:1;transform:translateY(0)}
+}
+
+.preview-pane.fullscreen {
+  position:fixed;
+  inset:0;
+  z-index:100;
+  background:#0a1019;
+}
+
+body.resizing {
+  user-select:none;
+  cursor:col-resize;
+}
+
+body.resizing iframe {
+  pointer-events:none;
+}
+
+@media(max-width:850px) {
+  .topbar {
+    padding:0 11px;
+    gap:9px;
+  }
+
+  .logo-sub {
+    display:none;
+  }
+
+  .logo-title {
+    font-size:13px;
+  }
+
+  .filename {
+    width:110px;
+  }
+
+  .workspace {
+    grid-template-columns:1fr;
+    grid-template-rows:minmax(230px,45%) minmax(0,55%);
+  }
+
+  .dragbar {
+    display:none;
+  }
+
+  .editor-pane {
+    border-bottom:4px solid var(--border);
+  }
+
+  .pane-header {
+    padding:0 9px;
+  }
+
+  .tab {
+    padding:8px 10px;
+  }
+
+  .preview-stage {
+    padding:8px;
+  }
+
+  .subbar {
+    padding:8px 11px;
+  }
+
+  .sub-right {
+    display:none;
+  }
+
+  .mobile-hide {
+    display:none;
+  }
+
+  .statusbar {
+    font-size:9px;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<header class="topbar">
+  <div class="logo">
+    <div class="logo-icon">&lt;/&gt;</div>
+    <div>
+      <div class="logo-title">
+        KOD<span>PENSEL</span> STUDIO
+      </div>
+      <div class="logo-sub">
+        Build • Preview • Export
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <input
+      id="projectName"
+      class="filename"
+      value="my-project"
+      placeholder="Project name"
+      aria-label="Project name"
+    >
+
+    <button id="newBtn" title="Create blank project">
+      + New
+    </button>
+
+    <button id="importBtn">
+      Import
+    </button>
+
+    <button id="copyBtn" class="mobile-hide">
+      Copy HTML
+    </button>
+
+    <button id="downloadBtn" class="primary">
+      ↓ Download
+    </button>
+
+    <input
+      id="fileInput"
+      type="file"
+      accept=".html,.htm"
+      hidden
+    >
+  </div>
+</header>
+
+<div class="subbar">
+  <div class="sub-left">
+    <span class="pill">READY TO BUILD</span>
+    <span id="saveStatus">Local draft</span>
+  </div>
+
+  <div class="sub-right">
+    <label class="toggle">
+      <input id="autoRun" type="checkbox" checked>
+      Auto Preview
+    </label>
+    <span>Ctrl + Enter to Run</span>
+  </div>
+</div>
+
+<div class="workspace" id="workspace">
+
+  <section class="editor-pane">
+    <div class="pane-header">
+      <div class="tabs">
+        <button class="tab selected" data-tab="html">
+          HTML
+        </button>
+        <button class="tab" data-tab="css">
+          CSS
+        </button>
+        <button class="tab" data-tab="js">
+          JS
+        </button>
+      </div>
+
+      <button id="runBtn" class="primary">
+        ▶ Run
+      </button>
+    </div>
+
+    <div class="editor-shell">
+      <pre class="line-numbers" id="lineNumbers">1</pre>
+      <textarea
+        id="code"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        wrap="off"
+        aria-label="Source code editor"
+      ></textarea>
+    </div>
+
+    <div class="editor-footer">
+      <span id="fileInfo">index.html</span>
+      <span id="editorInfo">Ln 1, Col 1</span>
+    </div>
+  </section>
+
+  <div class="dragbar" id="dragbar"
+       title="Drag to resize panels"></div>
+
+  <section class="preview-pane" id="previewPane">
+    <div class="pane-header">
+      <div>
+        <strong style="font-size:12px">
+          ◉ Live Preview
+        </strong>
+        <span id="runStatus"
+          style="font-size:10px;color:var(--muted);margin-left:7px">
+          Ready
+        </span>
+      </div>
+
+      <div class="preview-controls">
+        <button data-device="desktop" class="active"
+                title="Desktop">▣</button>
+        <button data-device="tablet"
+                title="Tablet">▤</button>
+        <button data-device="mobile"
+                title="Mobile">▯</button>
+        <button id="refreshBtn" title="Refresh preview">↻</button>
+        <button id="consoleBtn" title="Console">⌘</button>
+        <button id="fullscreenBtn" title="Fullscreen">⛶</button>
+      </div>
+    </div>
+
+    <div class="preview-stage">
+      <div class="frame-shell desktop" id="frameShell">
+        <iframe
+          id="preview"
+          title="HTML live preview"
+          sandbox="allow-scripts allow-forms allow-modals"
+          referrerpolicy="no-referrer"
+        ></iframe>
+      </div>
+    </div>
+
+    <div class="console" id="consolePanel">
+      <div class="console-head">
+        <span>⌘ JavaScript Console</span>
+        <div>
+          <button id="clearConsole">Clear</button>
+          <button id="closeConsole">×</button>
+        </div>
+      </div>
+      <div class="console-body" id="consoleBody"></div>
+    </div>
+  </section>
+</div>
+
+<div class="statusbar">
+  <span>
+    <strong>●</strong> LOCAL WORKSPACE
+  </span>
+  <span id="bottomStatus">
+    Preview isolated • No backend required
+  </span>
+  <span>KodPensel Studio v2.0 beta</span>
+</div>
+
+</div>
+
+<script>
+"use strict";
+
+/* =====================================================
+   PENFORGE STUDIO
+   Single-file HTML / CSS / JS playground
+   ===================================================== */
+
+const $ = id => document.getElementById(id);
+
+const STORAGE_KEY = "penforge-studio-draft-v1";
+
+const starter = {
+  name: "my-project",
+
+  html: `<main class="hero">
+  <div class="badge">✨ Built with Penforge</div>
+
+  <h1>Hello, Creator!</h1>
+
+  <p>
+    Paste your HTML here, preview instantly,
+    and export your finished project.
+  </p>
+
+  <button id="helloBtn">
+    Test JavaScript →
+  </button>
+
+  <p id="message"></p>
+</main>`,
+
+  css: `* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: #0d1020;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.hero {
+  text-align: center;
+  padding: 40px 24px;
+  max-width: 650px;
+}
+
+.badge {
+  color: #bdadff;
+  font-size: 14px;
+}
+
+h1 {
+  font-size: clamp(36px, 7vw, 64px);
+  letter-spacing: -2px;
+  margin: 18px 0;
+}
+
+p {
+  line-height: 1.8;
+  color: #aebcd5;
+}
+
+button {
+  background: #8573f6;
+  color: white;
+  border: none;
+  padding: 15px 25px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #aa83ff;
+}`,
+
+  js: `document.getElementById("helloBtn")
+  .addEventListener("click", () => {
+    document.getElementById("message")
+      .textContent = "It works! 🚀";
+
+    console.log("Hello from Penforge!");
+  });`,
+
+  autoRun: true
+};
+
+let state = loadDraft() || structuredCopy(starter);
+let activeTab = "html";
+let renderTimer = null;
+let saveTimer = null;
+let toastTimer = null;
+let runToken = "";
+let consoleCount = 0;
+
+/* -----------------------
+   State Management
+----------------------- */
+
+function structuredCopy(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+
+    const data = JSON.parse(raw);
+
+    if (typeof data.html !== "string") return null;
+
+    return {
+      name: data.name || "my-project",
+      html: data.html,
+      css: data.css || "",
+      js: data.js || "",
+      autoRun: data.autoRun !== false
+    };
+  } catch {
+    return null;
+  }
+}
+
+function saveDraft() {
+  try {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(state)
+    );
+
+    $("saveStatus").textContent = "Draft saved locally";
+  } catch {
+    $("saveStatus").textContent =
+      "Autosave unavailable";
+  }
+}
+
+function scheduleSave() {
+  $("saveStatus").textContent = "Editing...";
+  clearTimeout(saveTimer);
+
+  saveTimer = setTimeout(saveDraft, 500);
+}
+
+function toast(message) {
+  const previous = document.querySelector(".toast");
+  if (previous) previous.remove();
+
+  clearTimeout(toastTimer);
+
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = message;
+
+  document.body.appendChild(el);
+
+  toastTimer = setTimeout(() => el.remove(), 2500);
+}
+
+/* -----------------------
+   Code Editor
+----------------------- */
+
+const editor = $("code");
+
+function syncEditor() {
+  editor.value = state[activeTab];
+
+  document.querySelectorAll(".tab")
+    .forEach(tab => {
+      tab.classList.toggle(
+        "selected",
+        tab.dataset.tab === activeTab
+      );
+    });
+
+  const names = {
+    html: "index.html",
+    css: "style.css",
+    js: "script.js"
+  };
+
+  $("fileInfo").textContent = names[activeTab];
+
+  updateLines();
+  updateCaret();
+}
+
+function updateLines() {
+  const count = editor.value.split("\n").length;
+
+  const numbers = new Array(count);
+
+  for (let i = 0; i < count; i++) {
+    numbers[i] = String(i + 1);
+  }
+
+  $("lineNumbers").textContent = numbers.join("\n");
+  $("lineNumbers").scrollTop = editor.scrollTop;
+}
+
+function updateCaret() {
+  const before = editor.value.substring(
+    0,editor.selectionStart
+  );
+
+  const lines = before.split("\n");
+  const line = lines.length;
+  const col = lines[lines.length - 1].length + 1;
+
+  $("editorInfo").textContent =
+    `Ln ${line}, Col ${col}`;
+}
+
+function schedulePreview() {
+  if (!state.autoRun) return;
+
+  clearTimeout(renderTimer);
+
+  renderTimer = setTimeout(runPreview, 650);
+}
+
+document.querySelectorAll(".tab")
+  .forEach(tab => {
+    tab.addEventListener("click", () => {
+      activeTab = tab.dataset.tab;
+      syncEditor();
+      editor.focus();
+    });
+  });
+
+editor.addEventListener("input", () => {
+  state[activeTab] = editor.value;
+
+  updateLines();
+  updateCaret();
+  scheduleSave();
+  schedulePreview();
+});
+
+editor.addEventListener("click", updateCaret);
+editor.addEventListener("keyup", updateCaret);
+
+editor.addEventListener("scroll", () => {
+  $("lineNumbers").scrollTop = editor.scrollTop;
+});
+
+editor.addEventListener("keydown", e => {
+
+  if (e.key === "Tab") {
+    e.preventDefault();
+
+    const start = editor.selectionStart;
+    const end = editor.selectionEnd;
+    const value = editor.value;
+
+    editor.value =
+      value.slice(0,start) +
+      "  " +
+      value.slice(end);
+
+    editor.selectionStart =
+      editor.selectionEnd = start + 2;
+
+    editor.dispatchEvent(new Event("input"));
+  }
+
+  if (e.key === "Enter" && !e.shiftKey) {
+    const start = editor.selectionStart;
+    const before = editor.value.slice(0,start);
+    const currentLine =
+      before.slice(before.lastIndexOf("\n") + 1);
+
+    const indent =
+      (currentLine.match(/^\s*/) || [""])[0];
+
+    if (indent) {
+      e.preventDefault();
+
+      const end = editor.selectionEnd;
+      const value = editor.value;
+
+      editor.value =
+        value.slice(0,start) +
+        "\n" + indent +
+        value.slice(end);
+
+      editor.selectionStart =
+        editor.selectionEnd =
+          start + 1 + indent.length;
+
+      editor.dispatchEvent(new Event("input"));
+    }
+  }
+});
+
+/* -----------------------
+   Console Bridge
+----------------------- */
+
+function consoleBridge(token) {
+  function stringify(value) {
+    if (typeof value === "string") return value;
+
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return String(value);
+    }
+  }
+
+  function send(level,args) {
+    try {
+      parent.postMessage({
+        app: "PENFORGE_CONSOLE",
+        token: token,
+        level: level,
+        message: args.map(stringify).join(" ").slice(0,4000)
+      },"*");
+    } catch {}
+  }
+
+  ["log","warn","error","info","debug"]
+    .forEach(level => {
+      const original = console[level];
+
+      console[level] = function(...args) {
+        send(level,args);
+        original.apply(console,args);
+      };
+    });
+
+  window.addEventListener("error", event => {
+    send("error",[
+      event.message,
+      "Line " + event.lineno
+    ]);
+  });
+
+  window.addEventListener(
+    "unhandledrejection",
+    event => send("error",[
+      "Unhandled Promise:",
+      String(event.reason)
+    ])
+  );
+}
+
+function appendConsole(level,message) {
+  const el = document.createElement("div");
+
+  el.className = "log-entry " + (
+    ["error","warn","info"].includes(level)
+      ? level : ""
+  );
+
+  const time = document.createElement("span");
+  time.className = "time";
+  time.textContent =
+    new Date().toLocaleTimeString() + " ";
+
+  const content = document.createElement("span");
+  content.textContent =
+    `[${level}] ${message}`;
+
+  el.append(time,content);
+
+  const body = $("consoleBody");
+  body.appendChild(el);
+
+  while (body.children.length > 200) {
+    body.firstElementChild.remove();
+  }
+
+  body.scrollTop = body.scrollHeight;
+
+  consoleCount++;
+
+  $("consoleBtn").textContent =
+    "⌘ " + consoleCount;
+}
+
+window.addEventListener("message",event => {
+  if (event.source !== $("preview").contentWindow) {
+    return;
+  }
+
+  const msg = event.data;
+
+  if (!msg || msg.app !== "PENFORGE_CONSOLE") {
+    return;
+  }
+
+  if (msg.token !== runToken) return;
+
+  appendConsole(
+    String(msg.level || "log"),
+    String(msg.message || "")
+  );
+});
+
+/* -----------------------
+   Compiler
+----------------------- */
+
+function scriptTag(source) {
+  // Avoid literal closing script tags in the
+  // studio's own HTML parser.
+  const close = "</scr" + "ipt>";
+
+  const safe = source.replace(
+    /<\s*\/\s*script/gi,
+    "<\\/script"
+  );
+
+  return "<script>\n" + safe + "\n" + close;
+}
+
+function buildHTML(instrument = false) {
+  let html = state.html.trim();
+
+  const css = state.css.trim()
+    ? `<style>\n${state.css}\n</style>`
+    : "";
+
+  const js = state.js.trim()
+    ? scriptTag(state.js)
+    : "";
+
+  const bridge = instrument
+    ? scriptTag(
+        "(" + consoleBridge.toString() + ")(" +
+        JSON.stringify(runToken) + ");"
+      )
+    : "";
+
+  // Full HTML document.
+  if (/<html[\s>]/i.test(html)) {
+
+    if (/<head\b[^>]*>/i.test(html)) {
+      html = html.replace(
+        /<head\b[^>]*>/i,
+        match => match + bridge
+      );
+    } else {
+      html = html.replace(
+        /<html\b[^>]*>/i,
+        match => match + "<head>" + bridge + "</head>"
+      );
+    }
+
+    if (/<\/head\s*>/i.test(html)) {
+      html = html.replace(
+        /<\/head\s*>/i,
+        css + "</head>"
+      );
+    } else if (css) {
+      html = html.replace(
+        /<body\b/i,
+        css + "<body"
+      );
+    }
+
+    if (/<\/body\s*>/i.test(html)) {
+      html = html.replace(
+        /<\/body\s*>/i,
+        js + "
+<style>
+.kp-tools{display:flex;gap:7px;align-items:center;overflow-x:auto;padding:8px;background:#111a2b;border-bottom:1px solid var(--border);flex:none}
+.kp-tools button{padding:7px 10px}
+.kp-mobile{display:none;gap:5px}
+.kp-about{position:fixed;inset:0;background:#030711e9;z-index:1200;display:none;place-items:center;padding:16px}
+.kp-about.open{display:grid}
+.kp-dialog{background:#151d30;border:1px solid #536184;width:min(530px,100%);max-height:90dvh;overflow:auto;padding:26px;border-radius:17px}
+.kp-dialog p{line-height:1.7;color:#a6b6d1;font-size:14px}
+.kp-dialog a{color:#aa9cff;display:inline-block;margin:5px 10px 5px 0}
+.kp-floating{position:fixed;right:12px;bottom:44px;display:flex;gap:5px;z-index:80;background:#121d30e9;border:1px solid #39445f;border-radius:12px;padding:6px;max-width:calc(100vw - 24px);overflow-x:auto}
+.kp-floating button{padding:8px 10px}
+@media(max-width:850px){
+ .kp-mobile{display:flex}
+ .workspace{display:block}
+ .editor-pane,.preview-pane{height:100%;min-height:0}
+ body.kp-preview .editor-pane{display:none}
+ body:not(.kp-preview) .preview-pane{display:none}
+ .kp-floating{bottom:42px}
+}
+</style>
+<div class="kp-floating">
+ <div class="kp-mobile"><button id="kpCode" class="active">✎ Code</button><button id="kpPreview">◉ Preview</button></div>
+ <button id="kpBackup" title="Download editable project backup">Backup</button>
+ <button id="kpRestore" title="Restore editable project backup">Restore</button>
+ <button id="kpAbout">About</button>
+ <button id="kpInstall" hidden>Install</button>
+</div>
+<input type="file" id="kpRestoreInput" accept=".json" hidden>
+<div id="kpAboutOverlay" class="kp-about" aria-hidden="true">
+ <section class="kp-dialog" role="dialog" aria-modal="true" aria-labelledby="kpAboutTitle">
+  <button id="kpAboutClose" style="float:right">× Close</button>
+  <div class="logo-icon">&lt;/&gt;</div>
+  <h2 id="kpAboutTitle">Faiz Suhaimi</h2>
+  <p>Independent developer building practical tools across web development, blockchain, Web3 and trading automation. KodPensel is a mobile-first, local workspace for creative coding.</p>
+  <a href="https://github.com/fariztiger" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+  <a href="https://profiles.cyfrin.io/u/faizsuhaimi/achievements" target="_blank" rel="noopener noreferrer">Cyfrin Achievements ↗</a>
+  <p>KodPensel Studio v2.0 beta · Build anywhere.</p>
+ </section>
+</div>
+<script>
+(function(){
+const el=id=>document.getElementById(id);
+function view(preview){document.body.classList.toggle("kp-preview",preview);el("kpCode").classList.toggle("active",!preview);el("kpPreview").classList.toggle("active",preview)}
+el("kpCode").onclick=()=>view(false);
+el("kpPreview").onclick=()=>view(true);
+el("runBtn").addEventListener("click",()=>{if(innerWidth<=850)view(true)});
+el("kpBackup").onclick=()=>{
+ const blob=new Blob([JSON.stringify({format:"kodpensel-project",version:2,project:state},null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download=cleanFilename(state.name)+".kodpensel.json";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);toast("Project backup exported");
+};
+el("kpRestore").onclick=()=>el("kpRestoreInput").click();
+el("kpRestoreInput").onchange=async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ try{
+ if(file.size>5000000)throw Error("Backup too large");
+ const x=JSON.parse(await file.text()),p=x?.format==="kodpensel-project"?x.project:null;
+ if(!p||["html","css","js"].some(k=>typeof p[k]!=="string"))throw Error("Invalid project backup");
+ if(!confirm("Restore backup? The current draft will be replaced."))return;
+ state={name:cleanFilename(p.name),html:p.html,css:p.css,js:p.js,autoRun:p.autoRun!==false};
+ el("projectName").value=state.name;el("autoRun").checked=state.autoRun;activeTab="html";syncEditor();saveDraft();runPreview();toast("Project restored");
+ }catch(err){toast("Restore failed: "+err.message)}
+ finally{e.target.value=""}
+};
+const about=el("kpAboutOverlay");
+el("kpAbout").onclick=()=>{about.classList.add("open");about.setAttribute("aria-hidden","false");el("kpAboutClose").focus()};
+function close(){about.classList.remove("open");about.setAttribute("aria-hidden","true");el("kpAbout").focus()}
+el("kpAboutClose").onclick=close;
+about.onclick=e=>{if(e.target===about)close()};
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&about.classList.contains("open"))close()});
+let prompt=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();prompt=e;el("kpInstall").hidden=false});
+el("kpInstall").onclick=async()=>{if(prompt){prompt.prompt();await prompt.userChoice;prompt=null;el("kpInstall").hidden=true}else toast("iOS: Safari Share → Add to Home Screen")};
+if("serviceWorker" in navigator&&location.protocol==="https:"){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(console.warn))}
+})();
+</script>
+
+</body>"
+      );
+    } else {
+      html += js;
+    }
+
+    return html;
+  }
+
+  // HTML snippets / split HTML-CSS-JS projects.
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1">
+<title>${escapeHTML(state.name)}</title>
+${bridge}
+${css}
+</head>
+<body>
+${html}
+${js}
+</body>
+</html>`;
+}
+
+function escapeHTML(text) {
+  return String(text).replace(
+    /[&<>"']/g,
+    c => ({
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#39;"
+    })[c]
+  );
+}
+
+function runPreview() {
+  clearTimeout(renderTimer);
+
+  runToken =
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : String(Date.now()) + Math.random();
+
+  consoleCount = 0;
+  $("consoleBtn").textContent = "⌘";
+  $("consoleBody").replaceChildren();
+
+  const compiled = buildHTML(true);
+
+  $("preview").srcdoc = compiled;
+
+  $("runStatus").textContent = "Rendered";
+
+  $("bottomStatus").textContent =
+    `${compiled.length.toLocaleString()} chars compiled`;
+
+  appendConsole("info","Preview reloaded");
+}
+
+/* -----------------------
+   Download / Copy / Import
+----------------------- */
+
+function cleanFilename(name) {
+  return String(name || "my-project")
+    .trim()
+    .replace(/\.html?$/i,"")
+    .replace(/[<>:"/\\|?*\x00-\x1f]/g,"-")
+    .replace(/^\.+$/,"project")
+    || "my-project";
+}
+
+function downloadHTML() {
+  const html = buildHTML(false);
+
+  const blob = new Blob([html],{
+    type:"text/html;charset=utf-8"
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download =
+    cleanFilename(state.name) + ".html";
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url),1500);
+
+  toast("HTML downloaded successfully!");
+}
+
+async function copyHTML() {
+  const html = buildHTML(false);
+
+  try {
+    await navigator.clipboard.writeText(html);
+    toast("Compiled HTML copied!");
+  } catch {
+    const temp = document.createElement("textarea");
+
+    temp.value = html;
+    temp.style.position = "fixed";
+    temp.style.opacity = "0";
+
+    document.body.appendChild(temp);
+    temp.select();
+
+    const copied = document.execCommand("copy");
+    temp.remove();
+
+    toast(
+      copied ? "HTML copied!" :
+      "Clipboard unavailable"
+    );
+  }
+}
+
+$("fileInput").addEventListener(
+  "change",
+  async event => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      const content = await file.text();
+
+      state.html = content;
+      state.css = "";
+      state.js = "";
+
+      state.name = cleanFilename(file.name);
+
+      $("projectName").value = state.name;
+
+      activeTab = "html";
+      syncEditor();
+      saveDraft();
+      runPreview();
+
+      toast("HTML file imported!");
+    } catch(err) {
+      toast("Import failed: " + err.message);
+    }
+
+    event.target.value = "";
+  }
+);
+
+$("importBtn").onclick = () => $("fileInput").click();
+
+$("downloadBtn").onclick = downloadHTML;
+
+$("copyBtn").onclick = copyHTML;
+
+$("newBtn").onclick = () => {
+  const ok = confirm(
+    "Create a blank project? Current draft will be replaced."
+  );
+
+  if (!ok) return;
+
+  state = {
+    name:"untitled-project",
+    html:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1">
+<title>Untitled Project</title>
+</head>
+<body>
+
+<h1>Hello World</h1>
+
+</body>
+</html>`,
+    css:"",
+    js:"",
+    autoRun:$("autoRun").checked
+  };
+
+  $("projectName").value = state.name;
+
+  activeTab = "html";
+  syncEditor();
+  saveDraft();
+  runPreview();
+
+  toast("New project created");
+};
+
+$("projectName").addEventListener("input",e => {
+  state.name = e.target.value;
+  scheduleSave();
+});
+
+$("autoRun").addEventListener("change",e => {
+  state.autoRun = e.target.checked;
+  saveDraft();
+
+  if (state.autoRun) runPreview();
+});
+
+/* -----------------------
+   Preview Controls
+----------------------- */
+
+$("runBtn").onclick = runPreview;
+$("refreshBtn").onclick = runPreview;
+
+document.querySelectorAll("[data-device]")
+  .forEach(button => {
+    button.addEventListener("click",() => {
+      const device = button.dataset.device;
+
+      $("frameShell").className =
+        "frame-shell " + device;
+
+      document.querySelectorAll("[data-device]")
+        .forEach(b => {
+          b.classList.toggle(
+            "active",
+            b === button
+          );
+        });
+
+      toast(
+        device.charAt(0).toUpperCase() +
+        device.slice(1) + " preview"
+      );
+    });
+  });
+
+$("consoleBtn").onclick = () => {
+  $("consolePanel").classList.toggle("open");
+};
+
+$("closeConsole").onclick = () => {
+  $("consolePanel").classList.remove("open");
+};
+
+$("clearConsole").onclick = () => {
+  $("consoleBody").replaceChildren();
+  consoleCount = 0;
+  $("consoleBtn").textContent = "⌘";
+};
+
+$("fullscreenBtn").onclick = () => {
+  $("previewPane").classList.toggle("fullscreen");
+
+  const full =
+    $("previewPane").classList.contains("fullscreen");
+
+  $("fullscreenBtn").textContent =
+    full ? "↙" : "⛶";
+};
+
+/* -----------------------
+   Keyboard Shortcuts
+----------------------- */
+
+document.addEventListener("keydown",e => {
+  if (
+    (e.ctrlKey || e.metaKey) &&
+    e.key === "Enter"
+  ) {
+    e.preventDefault();
+    runPreview();
+  }
+
+  if (
+    (e.ctrlKey || e.metaKey) &&
+    e.key.toLowerCase() === "s"
+  ) {
+    e.preventDefault();
+
+    if (e.shiftKey) {
+      downloadHTML();
+    } else {
+      saveDraft();
+      toast("Draft saved");
+    }
+  }
+
+  if (e.key === "Escape") {
+    $("previewPane").classList.remove("fullscreen");
+    $("fullscreenBtn").textContent = "⛶";
+  }
+});
+
+/* -----------------------
+   Resizable Split Panels
+----------------------- */
+
+const dragbar = $("dragbar");
+const workspace = $("workspace");
+
+let dragging = false;
+
+dragbar.addEventListener("pointerdown",e => {
+  if (window.innerWidth <= 850) return;
+
+  dragging = true;
+
+  dragbar.setPointerCapture(e.pointerId);
+  dragbar.classList.add("dragging");
+
+  document.body.classList.add("resizing");
+});
+
+dragbar.addEventListener("pointermove",e => {
+  if (!dragging) return;
+
+  const rect = workspace.getBoundingClientRect();
+
+  const x = e.clientX - rect.left;
+  const percent = Math.max(
+    25,
+    Math.min(75,x/rect.width*100)
+  );
+
+  workspace.style.gridTemplateColumns =
+    `minmax(260px,${percent}%) 6px minmax(260px,1fr)`;
+});
+
+function stopDrag() {
+  dragging = false;
+  dragbar.classList.remove("dragging");
+  document.body.classList.remove("resizing");
+}
+
+dragbar.addEventListener("pointerup",stopDrag);
+dragbar.addEventListener("pointercancel",stopDrag);
+
+/* -----------------------
+   Initialization
+----------------------- */
+
+function initialize() {
+  $("projectName").value = state.name;
+  $("autoRun").checked = state.autoRun;
+
+  syncEditor();
+  runPreview();
+
+  $("saveStatus").textContent =
+    "Local draft ready";
+}
+
+initialize();
+
+</script>
+</body>
+</html>
