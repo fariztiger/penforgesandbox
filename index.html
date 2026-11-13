@@ -1235,85 +1235,7 @@ function buildHTML(instrument = false) {
     if (/<\/body\s*>/i.test(html)) {
       html = html.replace(
         /<\/body\s*>/i,
-        js + "
-<style>
-.kp-tools{display:flex;gap:7px;align-items:center;overflow-x:auto;padding:8px;background:#111a2b;border-bottom:1px solid var(--border);flex:none}
-.kp-tools button{padding:7px 10px}
-.kp-mobile{display:none;gap:5px}
-.kp-about{position:fixed;inset:0;background:#030711e9;z-index:1200;display:none;place-items:center;padding:16px}
-.kp-about.open{display:grid}
-.kp-dialog{background:#151d30;border:1px solid #536184;width:min(530px,100%);max-height:90dvh;overflow:auto;padding:26px;border-radius:17px}
-.kp-dialog p{line-height:1.7;color:#a6b6d1;font-size:14px}
-.kp-dialog a{color:#aa9cff;display:inline-block;margin:5px 10px 5px 0}
-.kp-floating{position:fixed;right:12px;bottom:44px;display:flex;gap:5px;z-index:80;background:#121d30e9;border:1px solid #39445f;border-radius:12px;padding:6px;max-width:calc(100vw - 24px);overflow-x:auto}
-.kp-floating button{padding:8px 10px}
-@media(max-width:850px){
- .kp-mobile{display:flex}
- .workspace{display:block}
- .editor-pane,.preview-pane{height:100%;min-height:0}
- body.kp-preview .editor-pane{display:none}
- body:not(.kp-preview) .preview-pane{display:none}
- .kp-floating{bottom:42px}
-}
-</style>
-<div class="kp-floating">
- <div class="kp-mobile"><button id="kpCode" class="active">✎ Code</button><button id="kpPreview">◉ Preview</button></div>
- <button id="kpBackup" title="Download editable project backup">Backup</button>
- <button id="kpRestore" title="Restore editable project backup">Restore</button>
- <button id="kpAbout">About</button>
- <button id="kpInstall" hidden>Install</button>
-</div>
-<input type="file" id="kpRestoreInput" accept=".json" hidden>
-<div id="kpAboutOverlay" class="kp-about" aria-hidden="true">
- <section class="kp-dialog" role="dialog" aria-modal="true" aria-labelledby="kpAboutTitle">
-  <button id="kpAboutClose" style="float:right">× Close</button>
-  <div class="logo-icon">&lt;/&gt;</div>
-  <h2 id="kpAboutTitle">Faiz Suhaimi</h2>
-  <p>Independent developer building practical tools across web development, blockchain, Web3 and trading automation. KodPensel is a mobile-first, local workspace for creative coding.</p>
-  <a href="https://github.com/fariztiger" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
-  <a href="https://profiles.cyfrin.io/u/faizsuhaimi/achievements" target="_blank" rel="noopener noreferrer">Cyfrin Achievements ↗</a>
-  <p>KodPensel Studio v2.0 beta · Build anywhere.</p>
- </section>
-</div>
-<script>
-(function(){
-const el=id=>document.getElementById(id);
-function view(preview){document.body.classList.toggle("kp-preview",preview);el("kpCode").classList.toggle("active",!preview);el("kpPreview").classList.toggle("active",preview)}
-el("kpCode").onclick=()=>view(false);
-el("kpPreview").onclick=()=>view(true);
-el("runBtn").addEventListener("click",()=>{if(innerWidth<=850)view(true)});
-el("kpBackup").onclick=()=>{
- const blob=new Blob([JSON.stringify({format:"kodpensel-project",version:2,project:state},null,2)],{type:"application/json"});
- const url=URL.createObjectURL(blob),a=document.createElement("a");
- a.href=url;a.download=cleanFilename(state.name)+".kodpensel.json";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);toast("Project backup exported");
-};
-el("kpRestore").onclick=()=>el("kpRestoreInput").click();
-el("kpRestoreInput").onchange=async e=>{
- const file=e.target.files?.[0];if(!file)return;
- try{
- if(file.size>5000000)throw Error("Backup too large");
- const x=JSON.parse(await file.text()),p=x?.format==="kodpensel-project"?x.project:null;
- if(!p||["html","css","js"].some(k=>typeof p[k]!=="string"))throw Error("Invalid project backup");
- if(!confirm("Restore backup? The current draft will be replaced."))return;
- state={name:cleanFilename(p.name),html:p.html,css:p.css,js:p.js,autoRun:p.autoRun!==false};
- el("projectName").value=state.name;el("autoRun").checked=state.autoRun;activeTab="html";syncEditor();saveDraft();runPreview();toast("Project restored");
- }catch(err){toast("Restore failed: "+err.message)}
- finally{e.target.value=""}
-};
-const about=el("kpAboutOverlay");
-el("kpAbout").onclick=()=>{about.classList.add("open");about.setAttribute("aria-hidden","false");el("kpAboutClose").focus()};
-function close(){about.classList.remove("open");about.setAttribute("aria-hidden","true");el("kpAbout").focus()}
-el("kpAboutClose").onclick=close;
-about.onclick=e=>{if(e.target===about)close()};
-document.addEventListener("keydown",e=>{if(e.key==="Escape"&&about.classList.contains("open"))close()});
-let prompt=null;
-window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();prompt=e;el("kpInstall").hidden=false});
-el("kpInstall").onclick=async()=>{if(prompt){prompt.prompt();await prompt.userChoice;prompt=null;el("kpInstall").hidden=true}else toast("iOS: Safari Share → Add to Home Screen")};
-if("serviceWorker" in navigator&&location.protocol==="https:"){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(console.warn))}
-})();
-</script>
-
-</body>"
+        js + "</body>"
       );
     } else {
       html += js;
@@ -1676,5 +1598,83 @@ function initialize() {
 initialize();
 
 </script>
+
+<style>
+.kp-tools{display:flex;gap:7px;align-items:center;overflow-x:auto;padding:8px;background:#111a2b;border-bottom:1px solid var(--border);flex:none}
+.kp-tools button{padding:7px 10px}
+.kp-mobile{display:none;gap:5px}
+.kp-about{position:fixed;inset:0;background:#030711e9;z-index:1200;display:none;place-items:center;padding:16px}
+.kp-about.open{display:grid}
+.kp-dialog{background:#151d30;border:1px solid #536184;width:min(530px,100%);max-height:90dvh;overflow:auto;padding:26px;border-radius:17px}
+.kp-dialog p{line-height:1.7;color:#a6b6d1;font-size:14px}
+.kp-dialog a{color:#aa9cff;display:inline-block;margin:5px 10px 5px 0}
+.kp-floating{position:fixed;right:12px;bottom:44px;display:flex;gap:5px;z-index:80;background:#121d30e9;border:1px solid #39445f;border-radius:12px;padding:6px;max-width:calc(100vw - 24px);overflow-x:auto}
+.kp-floating button{padding:8px 10px}
+@media(max-width:850px){
+ .kp-mobile{display:flex}
+ .workspace{display:block}
+ .editor-pane,.preview-pane{height:100%;min-height:0}
+ body.kp-preview .editor-pane{display:none}
+ body:not(.kp-preview) .preview-pane{display:none}
+ .kp-floating{bottom:42px}
+}
+</style>
+<div class="kp-floating">
+ <div class="kp-mobile"><button id="kpCode" class="active">✎ Code</button><button id="kpPreview">◉ Preview</button></div>
+ <button id="kpBackup" title="Download editable project backup">Backup</button>
+ <button id="kpRestore" title="Restore editable project backup">Restore</button>
+ <button id="kpAbout">About</button>
+ <button id="kpInstall" hidden>Install</button>
+</div>
+<input type="file" id="kpRestoreInput" accept=".json" hidden>
+<div id="kpAboutOverlay" class="kp-about" aria-hidden="true">
+ <section class="kp-dialog" role="dialog" aria-modal="true" aria-labelledby="kpAboutTitle">
+  <button id="kpAboutClose" style="float:right">× Close</button>
+  <div class="logo-icon">&lt;/&gt;</div>
+  <h2 id="kpAboutTitle">Faiz Suhaimi</h2>
+  <p>Independent developer building practical tools across web development, blockchain, Web3 and trading automation. KodPensel is a mobile-first, local workspace for creative coding.</p>
+  <a href="https://github.com/fariztiger" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+  <a href="https://profiles.cyfrin.io/u/faizsuhaimi/achievements" target="_blank" rel="noopener noreferrer">Cyfrin Achievements ↗</a>
+  <p>KodPensel Studio v2.0 beta · Build anywhere.</p>
+ </section>
+</div>
+<script>
+(function(){
+const el=id=>document.getElementById(id);
+function view(preview){document.body.classList.toggle("kp-preview",preview);el("kpCode").classList.toggle("active",!preview);el("kpPreview").classList.toggle("active",preview)}
+el("kpCode").onclick=()=>view(false);
+el("kpPreview").onclick=()=>view(true);
+el("runBtn").addEventListener("click",()=>{if(innerWidth<=850)view(true)});
+el("kpBackup").onclick=()=>{
+ const blob=new Blob([JSON.stringify({format:"kodpensel-project",version:2,project:state},null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download=cleanFilename(state.name)+".kodpensel.json";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);toast("Project backup exported");
+};
+el("kpRestore").onclick=()=>el("kpRestoreInput").click();
+el("kpRestoreInput").onchange=async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ try{
+ if(file.size>5000000)throw Error("Backup too large");
+ const x=JSON.parse(await file.text()),p=x?.format==="kodpensel-project"?x.project:null;
+ if(!p||["html","css","js"].some(k=>typeof p[k]!=="string"))throw Error("Invalid project backup");
+ if(!confirm("Restore backup? The current draft will be replaced."))return;
+ state={name:cleanFilename(p.name),html:p.html,css:p.css,js:p.js,autoRun:p.autoRun!==false};
+ el("projectName").value=state.name;el("autoRun").checked=state.autoRun;activeTab="html";syncEditor();saveDraft();runPreview();toast("Project restored");
+ }catch(err){toast("Restore failed: "+err.message)}
+ finally{e.target.value=""}
+};
+const about=el("kpAboutOverlay");
+el("kpAbout").onclick=()=>{about.classList.add("open");about.setAttribute("aria-hidden","false");el("kpAboutClose").focus()};
+function close(){about.classList.remove("open");about.setAttribute("aria-hidden","true");el("kpAbout").focus()}
+el("kpAboutClose").onclick=close;
+about.onclick=e=>{if(e.target===about)close()};
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&about.classList.contains("open"))close()});
+let prompt=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();prompt=e;el("kpInstall").hidden=false});
+el("kpInstall").onclick=async()=>{if(prompt){prompt.prompt();await prompt.userChoice;prompt=null;el("kpInstall").hidden=true}else toast("iOS: Safari Share → Add to Home Screen")};
+if("serviceWorker" in navigator&&location.protocol==="https:"){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(console.warn))}
+})();
+</script>
+
 </body>
 </html>
