@@ -1,0 +1,18 @@
+{
+  "name": "KodPensel Studio",
+  "short_name": "KodPensel",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#080b14",
+  "theme_color": "#080b14",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
